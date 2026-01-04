@@ -12,6 +12,15 @@
 
   <title>CRATERFLAME - 3D Configurator</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- Import Map for bare module specifiers -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
 </head>
 
 <body>
@@ -155,7 +164,7 @@
     </div>
   </footer>
 
-  <script type="module" src="/main.js"></script>
+  <script type="module" src="./main.js"></script>
 </body>
 
 </html>

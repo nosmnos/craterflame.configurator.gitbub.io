@@ -135,46 +135,63 @@ export function loadModel(modelKey) {
 
     const loader = new GLTFLoader();
     const fileName = modelKey === 'radiant' ? 'Radiant3D.glb' : 'Bloom3D.glb';
-    const path = `/models/${fileName}`;
 
-    loader.load(path, (gltf) => {
-        currentModel = gltf.scene;
-        scene.add(currentModel);
+    // Paths to try
+    const paths = [
+        `./public/models/${fileName}`, // GitHub Pages / Raw Structure
+        `/models/${fileName}`,         // Vite / Root Serve
+        `models/${fileName}`           // Relative fallback
+    ];
 
-        // Auto-center
-        const box = new THREE.Box3().setFromObject(currentModel);
-        const center = box.getCenter(new THREE.Vector3());
-        currentModel.position.x += (currentModel.position.x - center.x);
-        currentModel.position.y += (currentModel.position.y - center.y);
-        currentModel.position.z += (currentModel.position.z - center.z);
-
-        console.log('Model Loaded:', modelKey);
-
-        // Find Front Panel
-        currentModel.traverse((child) => {
-            if (child.isMesh) {
-                // Heuristic for Front Panel
-                if (!frontPanelMesh && (child.name.includes('Front') || child.name.includes('Panel') || child.name.includes('Body'))) {
-                    frontPanelMesh = child;
-                    console.log('Selected Front Panel:', child.name);
-                }
-            }
-        });
-
-        // Fallback
-        if (!frontPanelMesh) {
-            currentModel.traverse(child => {
-                if (child.isMesh && !frontPanelMesh) {
-                    frontPanelMesh = child;
-                    console.log('Fallback Front Panel:', child.name);
-                }
-            });
+    function tryLoad(index) {
+        if (index >= paths.length) {
+            console.error('All model paths failed for:', fileName);
+            return;
         }
 
-    }, undefined, (error) => {
-        console.error('An error happened loading the model:', error);
-        console.error('Try checking if the file exists at:', path);
-    });
+        const path = paths[index];
+        loader.load(path, (gltf) => {
+            currentModel = gltf.scene;
+            scene.add(currentModel);
+
+            // Auto-center
+            const box = new THREE.Box3().setFromObject(currentModel);
+            const center = box.getCenter(new THREE.Vector3());
+            currentModel.position.x += (currentModel.position.x - center.x);
+            currentModel.position.y += (currentModel.position.y - center.y);
+            currentModel.position.z += (currentModel.position.z - center.z);
+
+            console.log('Model Loaded:', modelKey, 'from', path);
+
+            // Find Front Panel
+            currentModel.traverse((child) => {
+                if (child.isMesh) {
+                    // Heuristic for Front Panel
+                    if (!frontPanelMesh && (child.name.includes('Front') || child.name.includes('Panel') || child.name.includes('Body'))) {
+                        frontPanelMesh = child;
+                        console.log('Selected Front Panel:', child.name);
+                    }
+                }
+            });
+
+            // Fallback Front Panel
+            if (!frontPanelMesh) {
+                currentModel.traverse(child => {
+                    if (child.isMesh && !frontPanelMesh) {
+                        frontPanelMesh = child;
+                        console.log('Fallback Front Panel:', child.name);
+                    }
+                });
+            }
+
+        }, undefined, (error) => {
+            console.warn(`Failed to load model from ${path}, trying next path...`);
+            tryLoad(index + 1);
+        });
+    }
+
+    // Start loading
+    tryLoad(0);
 }
 
 function removeDecals() {
