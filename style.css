@@ -1,0 +1,601 @@
+:root {
+  /* Design System Colors */
+  --color-bg: #212529;
+  --color-text-primary: #FFFFFF;
+  --color-accent: #ED8B00;
+
+  /* Fonts */
+  --font-primary: 'Anta', sans-serif;
+
+  /* Layout */
+  --nav-height: 80px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  /* Prevent body scroll */
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* Sticky Navigation */
+header {
+  position: relative;
+  /* Changed from sticky as body is fixed height */
+  flex-shrink: 0;
+  z-index: 1000;
+  height: var(--nav-height);
+  background-color: var(--color-bg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+  position: relative;
+}
+
+.logo a {
+  position: relative;
+  display: block;
+}
+
+.logo img.logo-base {
+  height: 40px;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+.logo img.logo-ember {
+  height: 40px;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: color-dodge;
+  /* Filter stack to turn white/grey text into glowing orange/red */
+  /* Grayscale -> Sepia (Yellow) -> Hue Rotate (Red/Orange) -> Saturate (Intense) -> Blur (Glow) */
+  opacity: 0;
+  will-change: opacity, filter;
+  animation: burn-cycle 6s linear infinite, flicker 3s ease-in-out infinite;
+}
+
+/* Hover Effect: Heat Distortion */
+.logo:hover .logo-ember {
+  /* Speed up flicker slightly and increase intensity */
+  animation: burn-cycle 6s linear infinite, flicker 1s ease-in-out infinite;
+  /* We use a transition on filter brightness/opacity to boost it */
+  filter: grayscale(100%) sepia(100%) hue-rotate(-50deg) saturate(800%) blur(2px) brightness(1.2) url(#heat-distortion);
+  /* Note: Animation opacity handles visibility, but we can boost it slightly via blend mode or brightness */
+}
+
+/* 
+  FRAME TIMING (6s loop):
+  0.0s (0%)   - Cold
+  0.8s (13%)  - Heat Begins (Faint)
+  1.6s (26%)  - Ember Core (Soft orange)
+  2.4s (40%)  - Heat Flicker
+  3.2s (53%)  - Peak Heat (Hot orange, max glow)
+  3.8s (63%)  - Heat Distortion Pass (Peak continues)
+  4.6s (76%)  - Cooling Begins
+  5.4s (90%)  - Residual Ember
+  6.0s (100%) - Back to Cold
+*/
+
+@keyframes burn-cycle {
+  0% {
+    opacity: 0;
+    filter: grayscale(100%) sepia(100%) hue-rotate(-50deg) saturate(300%) blur(1px);
+  }
+
+  13% {
+    opacity: 0.05;
+  }
+
+  26% {
+    opacity: 0.15;
+    filter: grayscale(100%) sepia(100%) hue-rotate(-50deg) saturate(600%) blur(2px);
+  }
+
+  /* #ff8a1dish */
+  40% {
+    opacity: 0.15;
+  }
+
+  /* Flicker handles small variations */
+  53% {
+    opacity: 0.35;
+    filter: grayscale(100%) sepia(100%) hue-rotate(-55deg) saturate(800%) blur(3px);
+  }
+
+  /* #ff5a00ish (Hotter) */
+  63% {
+    opacity: 0.35;
+    filter: grayscale(100%) sepia(100%) hue-rotate(-55deg) saturate(800%) blur(3px) url(#heat-distortion);
+  }
+
+  /* Distortion pass */
+  76% {
+    opacity: 0.20;
+    filter: grayscale(100%) sepia(100%) hue-rotate(-50deg) saturate(500%) blur(2px);
+  }
+
+  90% {
+    opacity: 0.08;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes flicker {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  10% {
+    opacity: 0.95;
+  }
+
+  20% {
+    opacity: 1.05;
+  }
+
+  30% {
+    transform: scale(1.005);
+  }
+
+  40% {
+    opacity: 0.94;
+  }
+
+  50% {
+    transform: scale(0.995);
+  }
+
+  60% {
+    opacity: 1.06;
+  }
+
+  70% {
+    transform: scale(1.002);
+  }
+
+  80% {
+    opacity: 0.98;
+  }
+
+  90% {
+    transform: scale(0.998);
+  }
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+  gap: 32px;
+  align-items: center;
+}
+
+nav a {
+  color: var(--color-text-primary);
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  transition: color 0.3s ease;
+}
+
+nav a:hover {
+  color: var(--color-accent);
+}
+
+.cart-icon {
+  position: relative;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+}
+
+.cart-icon svg {
+  fill: var(--color-text-primary);
+  transition: fill 0.3s ease;
+}
+
+.cart-icon:hover svg {
+  fill: var(--color-accent);
+}
+
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: var(--color-accent);
+  color: var(--color-text-primary);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+/* Main Layout */
+main {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  /* Reduced width slightly */
+  flex-grow: 1;
+  overflow: hidden;
+  /* Contain children */
+}
+
+/* Configurator Panel (Left) */
+.config-panel {
+  padding: 20px;
+  /* Reduced further */
+  overflow-y: hidden;
+  /* Enforce no scroll */
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.config-section {
+  margin-bottom: 16px;
+  /* Compact spacing */
+}
+
+.config-section h2 {
+  font-size: 1rem;
+  /* Smaller header */
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  letter-spacing: 1px;
+}
+
+/* Form Elements */
+label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+select,
+input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  /* Reduced padding */
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--color-text-primary);
+  font-family: var(--font-primary);
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  outline: none;
+  border-radius: 4px;
+}
+
+/* Dropdown Options Styling */
+select option {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  padding: 10px;
+}
+
+select:focus,
+input[type="text"]:focus {
+  border-color: var(--color-accent);
+}
+
+/* Custom File Upload Styling */
+.file-upload {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+.file-upload input[type="file"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.file-upload-btn {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  /* Reduced padding */
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  text-align: center;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+}
+
+.file-upload:hover .file-upload-btn {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* Mode Switcher */
+.mode-switcher {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 8px;
+  /* Reduced padding */
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--color-text-primary);
+  font-family: var(--font-primary);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.8rem;
+}
+
+.mode-btn.active,
+.mode-btn:hover {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+/* Price Summary */
+.price-summary {
+  margin-top: auto;
+  /* Push to bottom if space permits */
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.total-price {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--color-accent);
+  margin-top: 8px;
+}
+
+.add-to-cart-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--color-accent);
+  color: #fff;
+  border: none;
+  font-family: var(--font-primary);
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.add-to-cart-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+/* 3D Viewport (Right) */
+#threejs-container {
+  background-color: #1a1d20;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.viewer-controls {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.reset-view-btn {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: var(--font-primary);
+  transition: all 0.3s ease;
+}
+
+.reset-view-btn:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* Cart Panel (Sidebar) */
+.cart-panel {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100vh;
+  background-color: #1a1d20;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  padding: 30px;
+  transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-panel.open {
+  right: 0;
+}
+
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 15px;
+}
+
+.close-cart {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.cart-items {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.cart-item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px 0;
+}
+
+.cart-item-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.cart-item-details {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.cart-item-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 2px;
+}
+
+.qty-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qty-btn:hover {
+  color: var(--color-accent);
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.remove-btn svg {
+  fill: #ff4444;
+  transition: fill 0.2s ease;
+}
+
+.remove-btn:hover svg {
+  fill: #ff0000;
+}
+
+.cart-footer {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Footer (Minimal) */
+footer {
+  flex-shrink: 0;
+  /* Prevent shrinking */
+  background-color: var(--color-bg);
+  padding: 16px 40px;
+  /* Reduced vertical padding */
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  /* Copyright Left, Links Right */
+  align-items: center;
+}
+
+.footer-left {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+.footer-links a {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  margin-left: 20px;
+  /* Space between links */
+  font-size: 0.85rem;
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: var(--color-accent);
+}
