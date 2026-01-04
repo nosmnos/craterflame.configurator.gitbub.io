@@ -138,8 +138,7 @@ export function loadModel(modelKey) {
 
     // Paths to try
     const paths = [
-        `/models/${fileName}`,         // Vite / Root Serve
-        `models/${fileName}`           // Relative fallback
+        `./models/${fileName}`
     ];
 
     function tryLoad(index) {
